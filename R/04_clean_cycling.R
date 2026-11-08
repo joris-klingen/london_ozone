@@ -12,10 +12,9 @@ source(Find(file.exists, c("../london_transport_repo/R/london_transport.R", "../
 # GMT up to the extract ending 2013-09-13 and UK local time from 2013-09-14 on, so in summer those
 # journeys sit one hour late against the GMT air quality and weather. CLOCK = "true" uses the
 # store's true times instead (start_time, converted to GMT).
-CLOCK <- "published"
+CLOCK <- "true"
 years_keep <- 2013:2025
 
-raw_dir <- "data/raw/cycling"  # stations.parquet (this project's station table)
 out_dir <- "data/processed"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -57,7 +56,8 @@ haversine <- function(lat1, lon1, lat2, lon2) {
 
 # Read station locations ----
 
-stations <- as.data.table(read_parquet(file.path(raw_dir, "stations.parquet")))
+# this project's station table (BikePoint 2026-03 plus the station numbers used from 2022-09), in the store
+stations <- ozone_stations_read()
 setkey(stations, station_id)
 
 # Process files one by one, accumulate into year buckets ----

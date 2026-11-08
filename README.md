@@ -38,9 +38,11 @@ The analysis uses three data sources:
 - **Air quality**: London Air Quality Network, hourly data from 5 monitoring stations (BL0, KC1, RI2, SK6, TH4), via the [Imperial College API](https://www.londonair.org.uk/LondonAir/API/)
 - **Weather**: [Open-Meteo Archive API](https://open-meteo.com/en/docs/historical-weather-api), central London (51.52N, 0.11W)
 
-Raw data files are too large for this repository. The journeys, the air quality and the weather are read from the shared London data store (`../london_transport_data`), through the readers in [`../london_transport_repo`](../london_transport_repo) (`R/london_transport.R`; the catalog `london_data_catalog.md` documents every dataset). The store's download scripts retrieve them from the sources above: `scripts/20_download_santander.R` (journeys), `scripts/30_download_laqn.R` (air quality) and `scripts/31_download_openmeteo.R` (weather). This project keeps only its station table, `data/raw/cycling/stations.parquet`, built by `R/01_download_cycling.R` (BikePoint API) and `R/01c_expand_stations.R` (stations of the new numbering, matched by name). Those two scripts still download TfL's journey files into `data/raw/cycling/` because `01c` scans them; `R/04_clean_cycling.R` no longer reads them.
+Raw data files are too large for this repository. The journeys, the air quality and the weather are read from the shared London data store (`../london_transport_data`), through the readers in [`../london_transport_repo`](../london_transport_repo) (`R/london_transport.R`; the catalog `london_data_catalog.md` documents every dataset). The store's download scripts retrieve them from the sources above: `scripts/20_download_santander.R` (journeys), `scripts/30_download_laqn.R` (air quality) and `scripts/31_download_openmeteo.R` (weather). The station table that locates the journeys (BikePoint ids of 2026-03 plus the station numbers used from 2022-09, matched by name) is in the store too, `ozone_stations_read()`; the scripts that built it (`R/01*`, which also kept a local copy of every journey file) are in this repository's git history. The project keeps no raw data of its own.
 
-Times: the air quality and weather are in GMT. `R/04_clean_cycling.R` reads the published journey clock times as GMT (`CLOCK <- "published"`, as in the 2026-03 run). TfL publishes UK local time from 2013-09-14 on, so in British Summer Time those journeys are one hour off against the environmental data; `CLOCK <- "true"` uses the store's true times.
+Times: the air quality and weather are in GMT. TfL publishes the journeys' clock times in GMT up to the extract ending 2013-09-13 and in UK local time from 2013-09-14 on; `R/04_clean_cycling.R` converts them to GMT with the store's true times (`CLOCK <- "true"`). The 2026-03 run read every clock time as GMT, which put summer journeys one hour late against the environmental data; `CLOCK <- "published"` reproduces that.
+
+Not rerun yet: `output/` and the results above were made with `CLOCK <- "published"` (the README table and figures by the 2026-03 run with this project's own journey copies; tables 2 and 3 on 2026-11-08 with the store's journeys). Rerun from `R/04_clean_cycling.R` to get results with the true clock times.
 
 ## Replication
 
@@ -53,10 +55,7 @@ R 4.3+ with the following packages: `data.table`, `arrow`, `fixest`, `ggplot2`, 
 Scripts are numbered in order of execution. From the project root:
 
 ```bash
-# Station table (requires internet; the journeys, air quality and weather are in the London store)
-Rscript R/01_download_cycling.R
-Rscript R/01b_fix_bad_cycling.R
-Rscript R/01c_expand_stations.R
+# The journeys, stations, air quality and weather are read from the London store
 
 # Clean and merge (~30 minutes)
 Rscript R/04_clean_cycling.R
@@ -83,7 +82,7 @@ Results are written to `output/tables/` and `output/figures/`.
 
 ```
 R/                  Analysis scripts (numbered in execution order)
-data/               Raw and processed data (not tracked, too large)
+data/processed/     Processed data (not tracked, too large)
 output/
   figures/          Figures (PDF + PNG)
   tables/           Regression tables (LaTeX + CSV)
