@@ -2,8 +2,10 @@
 
 source("R/00_packages.R")
 
-aq_dir <- "data/raw/airquality"
-wx_dir <- "data/raw/weather"
+# Air quality and weather come from the shared London data store (london_transport_data), read with
+# its readers; see ../london_transport_repo/london_data_catalog.md (laqn_hourly, openmeteo_weather)
+source(Find(file.exists, c("../london_transport_repo/R/london_transport.R", "../london_transport/R/london_transport.R")))
+
 out_dir <- "data/processed"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -11,20 +13,9 @@ dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 sites <- c("BL0", "KC1", "RI2", "SK6", "TH4")
 
-aq_list <- lapply(sites, function(s) {
-  f <- file.path(aq_dir, paste0(s, ".parquet"))
-  if (!file.exists(f)) {
-    cat("Missing:", f, "\n")
-    return(NULL)
-  }
-  dt <- as.data.table(read_parquet(f))
-  dt[, site := s]
-  dt
-})
-aq_list <- aq_list[!sapply(aq_list, is.null)]
-aq <- rbindlist(aq_list, fill = TRUE)
+aq <- laqn_read(sites)
 
-cat("Air quality data:", nrow(aq), "rows from", length(aq_list), "sites\n")
+cat("Air quality data:", nrow(aq), "rows from", uniqueN(aq[, site]), "sites\n")
 
 # Convert concentrations from ug/m3 to ppb ----
 # Molecular weights: O3=48, NO2=46, NO=30, SO2=64
@@ -63,7 +54,7 @@ cat("City-average AQ:", nrow(aq_avg), "hourly obs\n")
 
 # Read weather data ----
 
-weather <- as.data.table(read_parquet(file.path(wx_dir, "weather.parquet")))
+weather <- openmeteo_read()
 cat("Weather data:", nrow(weather), "hourly obs\n")
 
 # Merge air quality and weather ----

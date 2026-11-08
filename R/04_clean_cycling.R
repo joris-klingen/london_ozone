@@ -4,39 +4,22 @@ TEST_MODE <- FALSE  # Set TRUE to process only 10 files for debugging
 
 source("R/00_packages.R")
 
-raw_dir <- "data/raw/cycling"
+# Journeys come from the shared London data store (london_transport_data: one parquet per published
+# TfL file, one schema for all years); see ../london_transport_repo/london_data_catalog.md
+source(Find(file.exists, c("../london_transport_repo/R/london_transport.R", "../london_transport/R/london_transport.R")))
+
+# CLOCK = "published" reads every published clock time as GMT, as the 2026-03 run did. TfL publishes
+# GMT up to the extract ending 2013-09-13 and UK local time from 2013-09-14 on, so in summer those
+# journeys sit one hour late against the GMT air quality and weather. CLOCK = "true" uses the
+# store's true times instead (start_time, converted to GMT).
+CLOCK <- "published"
+years_keep <- 2013:2025
+
+raw_dir <- "data/raw/cycling"  # stations.parquet (this project's station table)
 out_dir <- "data/processed"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 # Helper functions ----
-
-name_map <- c(
-  "rental_id" = "rental_id", "rental.id" = "rental_id",
-  "rentalid" = "rental_id", "number" = "rental_id",
-  "duration" = "duration", "duration_seconds" = "duration",
-  "duration_(seconds)" = "duration", "total_duration" = "duration",
-  "total_duration_(ms)" = "duration_ms",
-  "end_date" = "end_date", "enddate" = "end_date", "end.date" = "end_date",
-  "end_station_id" = "end_station_id", "endstation_id" = "end_station_id",
-  "endstationid" = "end_station_id", "endstation.id" = "end_station_id",
-  "end_station_number" = "end_station_id",
-  "endstation_logical_terminal" = "end_station_id",
-  "end_station_name" = "end_station_name", "endstation_name" = "end_station_name",
-  "endstationname" = "end_station_name", "endstation.name" = "end_station_name",
-  "end_station" = "end_station_name",
-  "start_date" = "start_date", "startdate" = "start_date", "start.date" = "start_date",
-  "start_station_id" = "start_station_id", "startstation_id" = "start_station_id",
-  "startstationid" = "start_station_id", "startstation.id" = "start_station_id",
-  "start_station_number" = "start_station_id",
-  "startstation_logical_terminal" = "start_station_id",
-  "start_station_name" = "start_station_name", "startstation_name" = "start_station_name",
-  "startstationname" = "start_station_name", "startstation.name" = "start_station_name",
-  "start_station" = "start_station_name"
-)
-
-desired_cols <- c("rental_id", "duration", "duration_ms",
-                  "start_date", "end_date",
-                  "start_station_id", "end_station_id")
 
 keep_cols <- c("rental_id", "start_station_id", "end_station_id",
                "start_dt", "end_dt", "duration_sec",
@@ -44,25 +27,24 @@ keep_cols <- c("rental_id", "start_station_id", "end_station_id",
                "dist_straight_km", "dist_km", "speed_kmh",
                "date", "hour", "dow", "month", "year")
 
-standardize_names <- function(dt) {
-  nms <- tolower(names(dt))
-  nms <- gsub("\\s+", "_", trimws(nms))
-  matched <- match(nms, names(name_map))
-  has_match <- !is.na(matched)
-  nms[has_match] <- name_map[matched[has_match]]
-  setnames(dt, nms)
-  dt
-}
-
-parse_datetime <- function(x) {
-  x <- as.character(x)
-  first <- x[!is.na(x)][1]
-  if (grepl("^\\d{2}/\\d{2}/\\d{4}", first)) {
-    x <- sub("^(\\d{2})/(\\d{2})/(\\d{4})", "\\3-\\2-\\1", x)
+# One store file as the columns this script uses: station ids are the BikePoint id up to 2022-09
+# and the terminal number after (and in the one 2016 file that gives terminals), as before
+read_trips <- function(f) {
+  x <- santander_read(files = f, columns = c("rental_id", "duration_s", "start_station_id", "start_terminal",
+                                             "end_station_id", "end_terminal"))
+  if (CLOCK == "true") {
+    st <- lubridate::with_tz(x[, start_time], "GMT")
+    en <- lubridate::with_tz(x[, end_time], "GMT")
+  } else {
+    st <- x[, start_clock]
+    en <- x[, end_clock]
+    attr(st, "tzone") <- "GMT"
+    attr(en, "tzone") <- "GMT"
   }
-  short <- which(nchar(x) == 16L)
-  if (length(short)) x[short] <- paste0(x[short], ":00")
-  fasttime::fastPOSIXct(x, tz = "GMT")
+  dt <- data.table(rental_id = x[, rental_id], start_dt = st, end_dt = en, duration_sec = x[, duration_s],
+                   start_station_id = fcoalesce(x[, start_station_id], as.integer(x[, start_terminal])),
+                   end_station_id = fcoalesce(x[, end_station_id], as.integer(x[, end_terminal])))
+  dt[!is.na(start_dt) & year(start_dt) %in% years_keep]
 }
 
 haversine <- function(lat1, lon1, lat2, lon2) {
@@ -80,8 +62,9 @@ setkey(stations, station_id)
 
 # Process files one by one, accumulate into year buckets ----
 
-trip_files <- list.files(raw_dir, pattern = "\\.parquet$", full.names = TRUE)
-trip_files <- trip_files[!grepl("stations", trip_files)]
+m <- santander_manifest()[parquet != "" & as.Date(last_start) >= as.Date(sprintf("%d-01-01", min(years_keep))) &
+                            as.Date(first_start) <= as.Date(sprintf("%d-12-31", max(years_keep)))]
+trip_files <- file.path(santander_dir(), m[, parquet])
 
 if (TEST_MODE) {
   set.seed(42)
@@ -110,49 +93,8 @@ flush_buckets <- function() {
 
 for (f in trip_files) {
   tryCatch({
-    dt <- tryCatch(as.data.table(read_parquet(f)), error = function(e) NULL)
-    if (is.null(dt)) next
-
-    # Check for recognized columns
-    if (!"Rental Id" %in% names(dt) && !"Number" %in% names(dt)) {
-      skip_count <- skip_count + 1L
-      next
-    }
-
-    # Standardize and drop unneeded columns in-place
-    dt <- standardize_names(dt)
-    drop_cols <- setdiff(names(dt), desired_cols)
-    if (length(drop_cols)) dt[, (drop_cols) := NULL]
-
-    # Parse dates
-    dt[, `:=`(start_dt = parse_datetime(start_date),
-              end_dt   = parse_datetime(end_date))]
-    dt[, c("start_date", "end_date") := NULL]
-
-    # Drop rows with unparseable dates
-    dt <- dt[!is.na(start_dt)]
+    dt <- read_trips(f)
     if (nrow(dt) == 0L) next
-
-    # Duration
-    if ("duration_ms" %in% names(dt)) {
-      dt[, duration := as.numeric(duration_ms) / 1000]
-      dt[, duration_ms := NULL]
-    }
-    if ("duration" %in% names(dt)) {
-      dt[, duration_sec := as.numeric(duration)]
-      dt[, duration := NULL]
-    } else {
-      dt[, duration_sec := as.numeric(difftime(end_dt, start_dt, units = "secs"))]
-    }
-
-    # Station IDs — skip file if missing
-    if (!all(c("start_station_id", "end_station_id") %in% names(dt))) {
-      cat("  Skipping", basename(f), "- missing station ID columns\n")
-      skip_count <- skip_count + 1L
-      next
-    }
-    dt[, `:=`(start_station_id = as.integer(start_station_id),
-              end_station_id   = as.integer(end_station_id))]
 
     # Merge station coordinates (keyed join)
     dt[stations, `:=`(start_lat = i.lat, start_lon = i.lon), on = .(start_station_id = station_id)]

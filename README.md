@@ -38,7 +38,9 @@ The analysis uses three data sources:
 - **Air quality**: London Air Quality Network, hourly data from 5 monitoring stations (BL0, KC1, RI2, SK6, TH4), via the [Imperial College API](https://www.londonair.org.uk/LondonAir/API/)
 - **Weather**: [Open-Meteo Archive API](https://open-meteo.com/en/docs/historical-weather-api), central London (51.52N, 0.11W)
 
-Raw data files are too large for this repository (~15 GB). The download scripts (`R/01_*` through `R/03_*`) retrieve all data from the sources above.
+Raw data files are too large for this repository. The journeys, the air quality and the weather are read from the shared London data store (`../london_transport_data`), through the readers in [`../london_transport_repo`](../london_transport_repo) (`R/london_transport.R`; the catalog `london_data_catalog.md` documents every dataset). The store's download scripts retrieve them from the sources above: `scripts/20_download_santander.R` (journeys), `scripts/30_download_laqn.R` (air quality) and `scripts/31_download_openmeteo.R` (weather). This project keeps only its station table, `data/raw/cycling/stations.parquet`, built by `R/01_download_cycling.R` (BikePoint API) and `R/01c_expand_stations.R` (stations of the new numbering, matched by name). Those two scripts still download TfL's journey files into `data/raw/cycling/` because `01c` scans them; `R/04_clean_cycling.R` no longer reads them.
+
+Times: the air quality and weather are in GMT. `R/04_clean_cycling.R` reads the published journey clock times as GMT (`CLOCK <- "published"`, as in the 2026-03 run). TfL publishes UK local time from 2013-09-14 on, so in British Summer Time those journeys are one hour off against the environmental data; `CLOCK <- "true"` uses the store's true times.
 
 ## Replication
 
@@ -51,14 +53,10 @@ R 4.3+ with the following packages: `data.table`, `arrow`, `fixest`, `ggplot2`, 
 Scripts are numbered in order of execution. From the project root:
 
 ```bash
-# Download data (requires internet; ~2 hours)
+# Station table (requires internet; the journeys, air quality and weather are in the London store)
 Rscript R/01_download_cycling.R
 Rscript R/01b_fix_bad_cycling.R
 Rscript R/01c_expand_stations.R
-Rscript R/02_download_airquality.R
-Rscript R/02b_download_airquality_extended.R
-Rscript R/03_download_weather.R
-Rscript R/03b_download_weather_extended.R
 
 # Clean and merge (~30 minutes)
 Rscript R/04_clean_cycling.R
