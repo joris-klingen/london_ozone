@@ -15,21 +15,22 @@ coefs <- data.table(
                     levels = c("Within-day", "Spatio-temporal", "Cyclist panel")),
   sample = factor(rep(c("Original (2013-2017)", "Replication (2013-2017)", "Extension (2013-2025)"), 3),
                   levels = c("Original (2013-2017)", "Replication (2013-2017)", "Extension (2013-2025)")),
+  # Replication and extension: run of 2026-11-11 (true clock times; panel of year-month sets, classic bikes)
   coef = c(
-    # Within-day
-    -0.053, -0.072, -0.081,
-    # Spatio-temporal (zone-week FE)
-    -0.044, -0.031, -0.074,
-    # Cyclist panel (d>=0, t>=4; extension uses d>=2 due to memory constraint)
-    -0.026, -0.020, -0.022
+    # Within-day (table2_within_day_combined, cols 1-2)
+    -0.053, -0.047, -0.057,
+    # Spatio-temporal (zone-week FE; table3_spatiotemporal, cols 2 and 4)
+    -0.044, -0.049, -0.075,
+    # Cyclist panel (d>=0, t>=4; table4_panel_combined, cols 1 and 3)
+    -0.026, -0.014, -0.009
   ),
   se = c(
     # Within-day
-    0.016, 0.016, 0.010,
+    0.016, 0.011, 0.011,
     # Spatio-temporal
-    0.050, 0.051, 0.030,
+    0.050, 0.046, 0.028,
     # Cyclist panel
-    0.005, 0.005, 0.003
+    0.005, 0.003, 0.002
   )
 )
 

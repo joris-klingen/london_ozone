@@ -1,4 +1,11 @@
 # Build cyclist panel dataset ----
+#
+# A pseudo-cyclist is one route (start x end station), clock hour (GMT) and year-month: at most one
+# trip on any date, >= 4 trips, departure minutes more regular than uniform (p < 0.05). Classic bikes
+# only (e-bikes from 2022-09 are about 2 km/h faster within a set). Until 2026-11-11 the month was the
+# calendar month pooled over all years (63% of sets spanned several years); a check on Citi Bike
+# 2017-2019, with birth year x gender as a rider label, found year-month sets purer (0.89 vs 0.81 of
+# within-set trip pairs share a label; chance 0.02).
 
 source("R/00_packages.R")
 
@@ -15,9 +22,9 @@ if (TEST_RUN) {
 # Columns needed for panel construction
 build_cols <- c("start_station_id", "end_station_id", "start_dt",
                 "speed_kmh", "dist_km", "duration_sec", "date", "hour",
-                "dow", "month", "year", "rental_id")
+                "dow", "month", "year", "rental_id", "ebike")
 
-# Pass 1: Collect (route, hour, month, date) counts for thin-route filter ----
+# Pass 1: Collect (route, hour, year, month, date) counts for thin-route filter ----
 # Only need 4 integer columns per trip — much lighter than full data
 
 cat("Pass 1: Collecting slot-date counts...\n")
@@ -26,29 +33,29 @@ slot_counts_list <- list()
 for (f in trip_files) {
   cat("  ", basename(f), "...")
   dt <- as.data.table(read_parquet(f,
-    col_select = c("start_station_id", "end_station_id", "hour", "month", "date", "dist_km")))
-  dt <- dt[start_station_id != end_station_id & dist_km > 0]
+    col_select = c("start_station_id", "end_station_id", "hour", "month", "year", "date", "dist_km", "ebike")))
+  dt <- dt[start_station_id != end_station_id & dist_km > 0 & !(ebike %in% TRUE)]
   cat(nrow(dt), "trips\n")
 
-  # Count trips per (route-as-two-ints, hour, month, date)
-  chunk <- dt[, .N, by = .(start_station_id, end_station_id, hour, month, date)]
+  # Count trips per (route-as-two-ints, hour, year, month, date)
+  chunk <- dt[, .N, by = .(start_station_id, end_station_id, hour, year, month, date)]
   slot_counts_list[[length(slot_counts_list) + 1L]] <- chunk
   rm(dt, chunk); gc(verbose = FALSE)
 }
 
-# Combine across years — a (route, hour, month, date) can only appear in one year
+# Combine: a slot is one route, hour and year-month, so its dates sit in one year file
 # so N values don't need re-aggregation
 slot_counts <- rbindlist(slot_counts_list)
 rm(slot_counts_list); gc(verbose = FALSE)
 cat("Total slot-date combinations:", nrow(slot_counts), "\n")
 
-# Find bad slots: any (route, hour, month) where some date has N > 1
-bad_slots <- unique(slot_counts[N > 1, .(start_station_id, end_station_id, hour, month)])
+# Find bad slots: any (route, hour, year, month) where some date has N > 1
+bad_slots <- unique(slot_counts[N > 1, .(start_station_id, end_station_id, hour, year, month)])
 cat("Slots with duplicates (to exclude):", nrow(bad_slots), "\n")
-setkey(bad_slots, start_station_id, end_station_id, hour, month)
+setkey(bad_slots, start_station_id, end_station_id, hour, year, month)
 
-# Also count trips per (route, hour, month) across all dates — needed for set_stats
-slot_totals <- slot_counts[, .(n_trips = sum(N)), by = .(start_station_id, end_station_id, hour, month)]
+# Also count trips per (route, hour, year, month) across all dates — needed for set_stats
+slot_totals <- slot_counts[, .(n_trips = sum(N)), by = .(start_station_id, end_station_id, hour, year, month)]
 rm(slot_counts); gc(verbose = FALSE)
 
 # Pass 2: Load trips, apply thin filter, compute departure sd, apply CDF test ----
@@ -59,12 +66,12 @@ panel_list <- list()
 for (f in trip_files) {
   cat("  ", basename(f), "...")
   dt <- as.data.table(read_parquet(f, col_select = build_cols))
-  dt <- dt[start_station_id != end_station_id & dist_km > 0]
+  dt <- dt[start_station_id != end_station_id & dist_km > 0 & !(ebike %in% TRUE)]
 
   # Thin-route filter: remove trips in bad slots
   dt[, thin := TRUE]
   if (nrow(bad_slots) > 0) {
-    dt[bad_slots, thin := FALSE, on = .(start_station_id, end_station_id, hour, month)]
+    dt[bad_slots, thin := FALSE, on = .(start_station_id, end_station_id, hour, year, month)]
   }
   dt <- dt[thin == TRUE]
   dt[, thin := NULL]
@@ -79,7 +86,7 @@ for (f in trip_files) {
     n = .N,
     sum_min = sum(dep_minute),
     sum_min2 = sum(dep_minute^2)
-  ), by = .(start_station_id, end_station_id, hour, month)]
+  ), by = .(start_station_id, end_station_id, hour, year, month)]
 
   cat(nrow(dt), "kept\n")
   panel_list[[length(panel_list) + 1L]] <- list(trips = dt, stats = chunk_stats)
@@ -94,7 +101,7 @@ set_stats <- all_stats[, .(
   n = sum(n),
   sum_min = sum(sum_min),
   sum_min2 = sum(sum_min2)
-), by = .(start_station_id, end_station_id, hour, month)]
+), by = .(start_station_id, end_station_id, hour, year, month)]
 rm(all_stats); gc(verbose = FALSE)
 
 # Compute sd from sufficient statistics: var = (sum_x2 - sum_x^2/n) / (n-1)
@@ -111,16 +118,16 @@ cat("Sets passing threshold (p<0.05, n>=4):", sum(set_stats$keep, na.rm = TRUE),
 
 # Filter: keep only trips in passing sets ----
 
-keep_keys <- set_stats[keep == TRUE, .(start_station_id, end_station_id, hour, month)]
-setkey(keep_keys, start_station_id, end_station_id, hour, month)
+keep_keys <- set_stats[keep == TRUE, .(start_station_id, end_station_id, hour, year, month)]
+setkey(keep_keys, start_station_id, end_station_id, hour, year, month)
 
 cat("Filtering trips...\n")
 filtered_list <- list()
 for (i in seq_along(panel_list)) {
   dt <- panel_list[[i]]$trips
-  dt[, cyclist_set := paste0(start_station_id, "_", end_station_id, "_h", hour, "_m", month)]
+  dt[, cyclist_set := paste0(start_station_id, "_", end_station_id, "_h", hour, "_", year, "m", month)]
   # Semi-join on the 4 integer keys
-  dt <- dt[keep_keys, on = .(start_station_id, end_station_id, hour, month), nomatch = NULL]
+  dt <- dt[keep_keys, on = .(start_station_id, end_station_id, hour, year, month), nomatch = NULL]
   if (nrow(dt) > 0) filtered_list[[length(filtered_list) + 1L]] <- dt
 }
 rm(panel_list, keep_keys, set_stats, bad_slots); gc(verbose = FALSE)

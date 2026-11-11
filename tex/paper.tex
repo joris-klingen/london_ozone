@@ -32,7 +32,7 @@ Evidence from Cyclists in London --- Revisited}
 \maketitle
 
 \begin{abstract}
-We replicate and extend \citet{klingen2020urban}, who found that a 10~ppb increase in ozone reduces cycling speed by 0.3--0.4\% using 42 million London bike-share trips (2013--2017). Extending the sample to 108 million trips through 2025, we confirm a negative ozone--speed relationship across all four identification strategies. Point estimates in the extended and post-2017 samples are at least as large as in the original period, indicating that the effect has not diminished despite substantial changes in London's air quality and cycling landscape.
+We replicate and extend \citet{klingen2020urban}, who found that a 10~ppb increase in ozone reduces cycling speed by 0.3--0.4\% using 42 million London bike-share trips (2013--2017). Extending the sample to 112 million trips through 2025, we find a negative ozone--speed relationship in all four identification strategies. The within-day estimate is stable across periods, at about 0.05~km/h per 10~ppb. The within-cyclist estimate, based on pseudo-cyclists defined within a calendar year-month, is about half the original estimate and smaller after 2017, but remains statistically significant.
 
 \medskip
 \noindent \textit{Keywords}: air pollution, ozone, physical effort, cycling, productivity, replication \\
@@ -47,9 +47,9 @@ We replicate and extend \citet{klingen2020urban}, who found that a 10~ppb increa
 
 \citet{klingen2020urban} provided novel evidence that ambient ozone reduces cycling speed, using 42 million Santander Cycles trips during 2013--2017. Their preferred within-day estimate implied that a 10~ppb increase in ozone reduces speed by about 0.4\%, with effects emerging at concentrations as low as 20~ppb---far below regulatory standards.
 
-We revisit their analysis with two objectives. First, we replicate the original results on the 2013--2017 sample, implementing the same four identification strategies (within-day, between-day, spatio-temporal, cyclist panel) without traffic controls, which the original study showed to be inconsequential. Second, we extend the analysis to 2013--2025, tripling the sample to over 108 million trips. We also estimate models on the post-2017 subsample alone (2018--2025) to test whether the relationship holds in a period that includes COVID-19, the Ultra Low Emission Zone expansion, and substantial cycling infrastructure changes.
+We revisit their analysis with two objectives. First, we replicate the original results on the 2013--2017 sample, implementing the same four identification strategies (within-day, between-day, spatio-temporal, cyclist panel) without traffic controls, which the original study showed to be inconsequential. Second, we extend the analysis to 2013--2025, with 112 million trips. We also estimate models on the post-2017 subsample alone (2018--2025) to test whether the relationship holds in a period that includes COVID-19, the Ultra Low Emission Zone expansion, and substantial cycling infrastructure changes.
 
-Our replication confirms the core findings. In the extended and post-2017 samples, the within-day ozone coefficient is roughly twice the replication estimate, suggesting the effect may be \emph{larger} in more recent data. The between-day and spatio-temporal strategies yield consistent negative coefficients. Robustness checks---non-linearity analysis, lag/lead tests, and median speed regressions---support the original conclusions.
+Our replication confirms the core findings. The within-day ozone coefficient is similar in the replication, extended and post-2017 samples. The between-day and spatio-temporal strategies yield negative coefficients, although the spatio-temporal estimate is imprecise for 2013--2017. The cyclist-panel estimate is smaller than in the original study, which we attribute to a stricter definition of pseudo-cyclists.\footnote{The original study pooled the same calendar month over years, so that a pseudo-cyclist could combine trips made several years apart.} Robustness checks---non-linearity analysis, lag/lead tests, and median speed regressions---support the original conclusions.
 
 
 %% ============================================================
@@ -64,11 +64,11 @@ We implement the four identification strategies of \citet{klingen2020urban}; see
 
 \paragraph{Spatio-temporal.} Zone-day aggregates (5 monitoring zones, 2~km radius; a trip is assigned to a zone if both its origin and destination station are within 2~km of the monitor), with day, zone, and zone-month (or zone-week) fixed effects and NO$_x$ dummies.
 
-\paragraph{Cyclist panel.} Pseudo-cyclists identified from repeat commuters on the same route, hour, and month with departure-time regularity below the 5th percentile of the random uniform distribution ($\geq$4 trips). Cyclist fixed effects absorb route and time-of-day preferences.
+\paragraph{Cyclist panel.} Pseudo-cyclists are identified from repeat trips on the same route (origin and destination station), in the same clock hour and the same calendar year-month, with at most one trip per day, at least 4 trips, and departure-time regularity below the 5th percentile of the random uniform distribution. Unlike the original study, which pooled the same calendar month over all years, a pseudo-cyclist is confined to one year-month. A check on New York's Citi Bike, where trips of members in 2017--2019 report the rider's birth year and gender, suggests that this makes pseudo-cyclists considerably purer: within a pseudo-cyclist, 88\% of trip pairs share birth year and gender, against 80\% when the calendar month is pooled over years (2\% for two random members). Electric bikes, introduced in September 2022 and about 2~km/h faster than classic bikes for the same pseudo-cyclist, are excluded. Cyclist fixed effects absorb route and time-of-day preferences.
 
-\paragraph{Data.} Trip data are from Transport for London's Santander Cycles. Air quality data (O$_3$, NO$_2$, NO, PM$_{2.5}$, SO$_2$) are from the London Air Quality Network (5 stations). Weather data are from the Open-Meteo archive. The replication sample covers 2013--2017 ($\approx$42M trips), the extended sample 2013--2025 ($\approx$108M trips), and the post-2017 sample 2018--2025 ($\approx$66M trips).
+\paragraph{Data.} Trip data are from Transport for London's Santander Cycles. TfL reports clock times in GMT until mid-September 2013 and in UK local time thereafter; we convert all times to GMT to match the air quality and weather data. Air quality data (O$_3$, NO$_2$, NO, PM$_{2.5}$, SO$_2$) are from the London Air Quality Network (5 stations). Weather data are from the Open-Meteo archive. The replication sample covers 2013--2017 ($\approx$41M trips), the extended sample 2013--2025 ($\approx$112M trips), and the post-2017 sample 2018--2025 ($\approx$70M trips).
 
-Table~\ref{tab:desc} reports descriptive statistics. Mean ozone is higher in the post-2017 period (25.4 vs.\ 18.9~ppb) while NO$_x$ has declined substantially (21.9 vs.\ 44.7~ppb), consistent with ULEZ effects. Mean cycling speed is slightly higher in recent years (12.5 vs.\ 12.0~km/h).
+Table~\ref{tab:desc} reports descriptive statistics. Mean ozone is higher in the post-2017 period (25.2 vs.\ 18.7~ppb) while NO$_x$ has declined substantially (21.8 vs.\ 44.6~ppb), consistent with ULEZ effects. Mean cycling speed is slightly higher in recent years (12.5 vs.\ 12.0~km/h).
 
 \begin{table}[H]
 \centering
@@ -96,9 +96,9 @@ Table~\ref{tab:desc} reports descriptive statistics. Mean ozone is higher in the
 
 \subsection{Within-day estimation}
 
-Table~\ref{tab:within} presents the within-day results. In the replication sample, a 10~ppb increase in ozone reduces speed by 0.052~km/h (column~1), closely matching the original estimate of $-0.053$. The effect nearly doubles in both the full extended sample ($-0.095$, column~2) and the post-2017 subsample ($-0.098$, column~3), all significant at the 1\% level.
+Table~\ref{tab:within} presents the within-day results. In the replication sample, a 10~ppb increase in ozone reduces speed by 0.047~km/h (column~1), close to the original estimate of $-0.053$. The effect is similar in the full extended sample ($-0.057$, column~2) and the post-2017 subsample ($-0.050$, column~3), all significant at the 1\% level.
 
-The sorting tests show no meaningful effect of ozone on trip distance (columns~4--6) or log trips (columns~7--9), confirming that the speed effect reflects physiological impairment rather than compositional changes.
+The sorting tests show small effects of ozone on trip distance (columns~4--6) and log trips (columns~7--9). In the extended and post-2017 samples, a 10~ppb increase reduces mean distance by about 0.009~km (0.3\%) and raises the number of trips by 0.2--0.3\%. These effects are too small to suggest that the speed effect is driven by compositional changes.
 
 \begin{table}[H]
 \centering
@@ -113,7 +113,7 @@ The sorting tests show no meaningful effect of ozone on trip distance (columns~4
 
 \subsection{Between-day estimation}
 
-Table~\ref{tab:between} reports between-day results. The replication coefficient ($-0.286$, column~1) is larger than the within-day estimate, consistent with the original study and with the fact that between-day variation in ozone may capture additional cumulative exposure effects. The post-2017 estimate ($-0.084$, column~3) is smaller but remains significant at the 1\% level. The distance and trip-count coefficients are small and mostly insignificant.
+Table~\ref{tab:between} reports between-day results. The replication coefficient ($-0.246$, column~1) is larger than the within-day estimate, consistent with the original study and with the fact that between-day variation in ozone may capture additional cumulative exposure effects. The post-2017 estimate ($-0.076$, column~3) is smaller but remains significant at the 5\% level. The distance and trip-count coefficients are small and mostly insignificant.
 
 \begin{table}[H]
 \centering
@@ -128,7 +128,7 @@ Table~\ref{tab:between} reports between-day results. The replication coefficient
 
 \subsection{Spatio-temporal estimation}
 
-Table~\ref{tab:spatial} reports the spatio-temporal results. In the replication sample, the zone-month specification yields a near-zero coefficient (column~1), while the zone-week specification gives $-0.029$ (column~2), both imprecisely estimated---consistent with the wide confidence intervals in the original study. In the post-2017 sample, both specifications yield negative coefficients ($-0.049$ and $-0.089$), with the zone-week estimate significant at the 5\% level (column~6).
+Table~\ref{tab:spatial} reports the spatio-temporal results. In the replication sample, the zone-month specification yields a near-zero coefficient (column~1), while the zone-week specification gives $-0.049$ (column~2), both imprecisely estimated---consistent with the wide confidence intervals in the original study. In the extended sample, the zone-week estimate is $-0.075$ and significant at the 1\% level (column~4). In the post-2017 sample, both specifications yield negative coefficients ($-0.047$ and $-0.089$), with the zone-week estimate significant at the 5\% level (column~6).
 
 \begin{table}[H]
 \centering
@@ -143,7 +143,7 @@ Table~\ref{tab:spatial} reports the spatio-temporal results. In the replication 
 
 \subsection{Cyclist panel estimation}
 
-Table~\ref{tab:panel} presents the cyclist panel results across all three periods. With 640,034 pseudo-cyclists and 5.8 million panel trips, the replication coefficients ($-0.024$ and $-0.023$) are close to the original study's range of $-0.026$ to $-0.031$ (their Table~4). The extension and post-2017 coefficients are similar in magnitude, confirming that the within-cyclist ozone effect persists.
+Table~\ref{tab:panel} presents the cyclist panel results across all three periods. The panel contains 836,027 pseudo-cyclists and 6.0 million trips. The replication coefficients ($-0.014$ and $-0.016$) are about half the original study's range of $-0.026$ to $-0.031$ (their Table~4), which plausibly reflects our stricter definition of pseudo-cyclists, confined to one year-month. The extension and post-2017 coefficients are smaller still ($-0.009$ and $-0.007$ for all distances), but remain statistically significant, so the within-cyclist ozone effect persists.
 
 \begin{table}[H]
 \centering
@@ -202,7 +202,7 @@ Table~\ref{tab:panel} presents the cyclist panel results across all three period
 \label{fig:lagslead}
 \end{figure}
 
-\paragraph{Median speed.} Using median rather than mean speed as the dependent variable yields within-day coefficients of $-0.040$ (replication), $-0.084$ (extension), and $-0.086$ (post-2017), confirming that outliers do not drive the results.
+\paragraph{Median speed.} Using median rather than mean speed as the dependent variable yields within-day coefficients of $-0.034$ (replication), $-0.045$ (extension), and $-0.041$ (post-2017), confirming that outliers do not drive the results.
 
 
 %% ============================================================
@@ -220,24 +220,24 @@ Table~\ref{tab:comparison} summarizes the key ozone coefficients from \citet{kli
 Strategy & Original & Replication & Extension & Post-2017 \\
          & (2013--2017) & (2013--2017) & (2013--2025) & (2018--2025) \\
 \midrule
-Within-day        & $-0.053^{***}$ & $-0.052^{***}$ & $-0.095^{***}$ & $-0.098^{***}$ \\
-Between-day       & $-0.083^{***}$ & $-0.286^{***}$ & $-0.125^{***}$ & $-0.084^{***}$ \\
-Spatio-temporal (week) & $-0.044$  & $-0.029$       & $-0.071^{**}$  & $-0.089^{**}$  \\
-Panel ($d \geq 0$) & $-0.026$ to $-0.031$ & $-0.024$ & $-0.026$ & $-0.020$ \\
+Within-day        & $-0.053^{***}$ & $-0.047^{***}$ & $-0.057^{***}$ & $-0.050^{***}$ \\
+Between-day       & $-0.083^{***}$ & $-0.246^{***}$ & $-0.111^{***}$ & $-0.076^{**}$ \\
+Spatio-temporal (week) & $-0.044$  & $-0.049$       & $-0.075^{***}$ & $-0.089^{**}$  \\
+Panel ($d \geq 0$) & $-0.026$ to $-0.031$ & $-0.014^{***}$ & $-0.009^{***}$ & $-0.007^{**}$ \\
 \bottomrule
 \end{tabular}
 
 \medskip
-\footnotesize Original estimates from \citet{klingen2020urban}: within-day from their Table~2 col.~1; between-day from Table~2 col.~2; spatio-temporal from Table~3 col.~2 (zone-week); panel range from Table~4. Our replication omits traffic controls; the original study showed these to be inconsequential. $^{***}$, $^{**}$: significant at 1\%, 5\%.
+\footnotesize Original estimates from \citet{klingen2020urban}: within-day from their Table~2 col.~1; between-day from Table~2 col.~2; spatio-temporal from Table~3 col.~2 (zone-week); panel range from Table~4. Our replication omits traffic controls; the original study showed these to be inconsequential. Our panel confines a pseudo-cyclist to one year-month and excludes electric bikes. $^{***}$, $^{**}$: significant at 1\%, 5\%.
 \end{table}
 
-Several patterns emerge from the comparison. First, the within-day replication ($-0.052$) closely matches the original ($-0.053$), confirming that omitting traffic controls does not materially affect the estimate, as the original authors demonstrated. Second, the within-day effect is substantially larger in the post-2017 period ($-0.098$), which may reflect higher baseline ozone levels (25.4 vs.\ 18.9~ppb mean) and a shift in the cycling population toward more casual riders following infrastructure expansion. Third, our between-day replication ($-0.286$) exceeds the original ($-0.083$); this difference likely reflects different weather data sources (Open-Meteo vs.\ Met Office) and the absence of traffic controls, to which the between-day specification may be more sensitive. Fourth, the spatio-temporal estimates, while imprecise in the replication period, become significant in the extended and post-2017 samples as statistical power increases. Finally, the panel estimates are remarkably stable across all periods ($-0.020$ to $-0.026$), consistent with the original range, providing the strongest evidence that the ozone effect reflects within-cyclist physiological impairment.
+Several patterns emerge from the comparison. First, the within-day replication ($-0.047$) is close to the original ($-0.053$), confirming that omitting traffic controls does not materially affect the estimate, as the original authors demonstrated. Second, the within-day effect is stable over time ($-0.050$ in the post-2017 period), despite higher ozone levels (25.2 vs.\ 18.7~ppb mean). Third, our between-day replication ($-0.246$) exceeds the original ($-0.083$); this difference likely reflects different weather data sources (Open-Meteo vs.\ Met Office) and the absence of traffic controls, to which the between-day specification may be more sensitive. Fourth, the spatio-temporal estimates, while imprecise in the replication period, become significant in the extended and post-2017 samples as statistical power increases. Finally, the panel estimates ($-0.014$ to $-0.007$) are smaller than the original range and decline over time, but remain statistically significant, so ozone also reduces speed within pseudo-cyclists.
 
 %% ============================================================
 \section{Conclusion} \label{sec:conclusion}
 %% ============================================================
 
-We replicate and extend \citet{klingen2020urban} using 108 million London bike-share trips spanning 2013--2025. The core finding---that ambient ozone reduces cycling speed at concentrations well below regulatory standards---holds robustly across all four identification strategies and all time periods examined. The within-day estimate nearly doubles in the post-2017 data, while the panel estimate remains stable, suggesting that the aggregate effect may partly reflect compositional changes in the cycling population alongside the underlying physiological mechanism.
+We replicate and extend \citet{klingen2020urban} using 112 million London bike-share trips spanning 2013--2025. The core finding---that ambient ozone reduces cycling speed at concentrations well below regulatory standards---holds in all four identification strategies, although the spatio-temporal estimate is imprecise for 2013--2017. The within-day estimate is stable across periods. The within-cyclist estimate is about half the original one once pseudo-cyclists are confined to one year-month, and is smaller after 2017.
 
 The persistence of this effect through COVID-19, ULEZ expansion, and cycling infrastructure growth---and across a period in which NO$_x$ fell by half while ozone rose by a third---reinforces that it reflects a fundamental physiological response to ozone exposure rather than a statistical artifact of a particular period or pollution mix.
 

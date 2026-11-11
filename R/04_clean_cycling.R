@@ -24,13 +24,13 @@ keep_cols <- c("rental_id", "start_station_id", "end_station_id",
                "start_dt", "end_dt", "duration_sec",
                "start_lat", "start_lon", "end_lat", "end_lon",
                "dist_straight_km", "dist_km", "speed_kmh",
-               "date", "hour", "dow", "month", "year")
+               "date", "hour", "dow", "month", "year", "ebike")
 
 # One store file as the columns this script uses: station ids are the BikePoint id up to 2022-09
 # and the terminal number after (and in the one 2016 file that gives terminals), as before
 read_trips <- function(f) {
   x <- santander_read(files = f, columns = c("rental_id", "duration_s", "start_station_id", "start_terminal",
-                                             "end_station_id", "end_terminal"))
+                                             "end_station_id", "end_terminal", "bike_model"))
   if (CLOCK == "true") {
     st <- lubridate::with_tz(x[, start_time], "GMT")
     en <- lubridate::with_tz(x[, end_time], "GMT")
@@ -42,7 +42,9 @@ read_trips <- function(f) {
   }
   dt <- data.table(rental_id = x[, rental_id], start_dt = st, end_dt = en, duration_sec = x[, duration_s],
                    start_station_id = fcoalesce(x[, start_station_id], as.integer(x[, start_terminal])),
-                   end_station_id = fcoalesce(x[, end_station_id], as.integer(x[, end_terminal])))
+                   end_station_id = fcoalesce(x[, end_station_id], as.integer(x[, end_terminal])),
+                   # e-bikes exist from 2022-09 (bike_model); NA before, when every bike was classic
+                   ebike = x[, bike_model] == "PBSC_EBIKE")
   dt[!is.na(start_dt) & year(start_dt) %in% years_keep]
 }
 

@@ -2,7 +2,7 @@
 
 [Klingen and van Ommeren (2020)](https://doi.org/10.1016/j.regsciurbeco.2019.103504) showed that ozone pollution reduces cycling speed in London, using 42 million Santander Cycles trips during 2013--2017. A 10 ppb increase in ozone --- roughly the difference between a clean and a moderately polluted day --- reduced average speed by 0.3--0.4%, with effects detectable at concentrations as low as 20 ppb. The paper used four complementary identification strategies to rule out confounding from weather, traffic, and cyclist sorting.
 
-This repository extends the analysis to 108 million trips through 2025, tripling the original sample. The code replicates the original estimation and tests whether the ozone--speed relationship persists across a period that includes COVID-19, the Ultra Low Emission Zone expansion, and substantial changes to London's cycling infrastructure. It does.
+This repository extends the analysis to 112 million trips through 2025. The code replicates the original estimation and tests whether the ozone--speed relationship persists across a period that includes COVID-19, the Ultra Low Emission Zone expansion, and substantial changes to London's cycling infrastructure. It does.
 
 ## Results
 
@@ -12,9 +12,9 @@ The table below compares the original estimates to our replication and the exten
 
 | Identification strategy | Original (2013--2017) | Replication (2013--2017) | Extension (2013--2025) |
 |---|:---:|:---:|:---:|
-| Within-day | -0.053\*\*\* | -0.072\*\*\* | -0.081\*\*\* |
-| Spatio-temporal | -0.044 | -0.031 | -0.074\*\* |
-| Cyclist panel (d>4km) | -0.026\*\*\* | -0.020\*\*\* | -0.022\*\*\* |
+| Within-day | -0.053\*\*\* | -0.047\*\*\* | -0.057\*\*\* |
+| Spatio-temporal (zone-week) | -0.044 | -0.049 | -0.075\*\*\* |
+| Cyclist panel (all distances) | -0.026\*\*\* | -0.014\*\*\* | -0.009\*\*\* |
 
 \*\*\* p<0.01, \*\* p<0.05
 
@@ -24,7 +24,9 @@ Using 5 ppb ozone bin indicators, both the replication and extension samples sho
   <img src="output/figures/nonlinearity_comparison.png" width="700" alt="Non-linear ozone effects on cycling speed">
 </p>
 
-Estimating the model separately for each year shows that the negative ozone effect is present throughout the sample period, with no sign of attenuation. The wide confidence interval in 2021 reflects reduced within-day ozone variation during COVID-19 lockdowns.
+Estimating the model separately for each year gives negative estimates in most years, but estimates close to zero in 2020, 2023 and 2024.
+
+The cyclist panel confines a pseudo-cyclist to one route, clock hour and year-month (the original study pooled the calendar month over all years) and excludes e-bikes (from 2022-09). This halves the panel estimate relative to the original study.
 
 <p align="center">
   <img src="output/figures/yearly_ozone_effect.png" width="700" alt="Ozone effect on cycling speed by year">
@@ -42,7 +44,7 @@ Raw data files are too large for this repository. The journeys, the air quality 
 
 Times: the air quality and weather are in GMT. TfL publishes the journeys' clock times in GMT up to the extract ending 2013-09-13 and in UK local time from 2013-09-14 on; `R/04_clean_cycling.R` converts them to GMT with the store's true times (`CLOCK <- "true"`). The 2026-03 run read every clock time as GMT, which put summer journeys one hour late against the environmental data; `CLOCK <- "published"` reproduces that.
 
-Not rerun yet: `output/` and the results above were made with `CLOCK <- "published"` (the README table and figures by the 2026-03 run with this project's own journey copies; tables 2 and 3 on 2026-11-08 with the store's journeys). Rerun from `R/04_clean_cycling.R` to get results with the true clock times.
+`output/`, the paper and the results above were rerun from `R/04_clean_cycling.R` on 2026-11-11 with the true clock times and the year-month panel. The within-day estimate no longer rises after 2017 (the earlier runs read every clock time as GMT and gave -0.095 for 2013-2025).
 
 ## Replication
 
