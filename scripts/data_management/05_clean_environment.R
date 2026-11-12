@@ -2,9 +2,9 @@
 
 source("scripts/project_init.R")
 
-# Air quality and weather come from the shared London data store (london_transport_data), read with
-# its readers; see ../london_transport_repo/london_data_catalog.md (laqn_hourly, openmeteo_weather)
-source(Find(file.exists, c("../london_transport_repo/R/london_transport.R", "../london_transport/R/london_transport.R")))
+# Air quality and weather come from the shared London data store (london_transport/data), read with
+# its readers; see ../london_transport/london_data_catalog.md (laqn_hourly, openmeteo_weather)
+source("../london_transport/R/london_transport.R")
 
 out_dir <- "data/sample"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)

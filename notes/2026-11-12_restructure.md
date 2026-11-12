@@ -30,3 +30,12 @@ Path rewrites applied to tracked files outside `notes/` (regular expression, rep
 - `(?<![A-Za-z0-9_./])R/(07_)` to `scripts/descriptives/\1`: 1
 - `(?<![A-Za-z0-9_./])R/(0[89][a-z]?_|1[0-6][a-z]?_)` to `scripts/estimation/\1`: 10
 - `(?<![A-Za-z0-9_])data/processed` to `data/sample`: 14
+
+## Folder names: stores in one folder, no _repo suffix, lower case
+
+
+Path rewrites applied to tracked files outside `notes/` (regular expression, replacement, hits):
+
+- `london_transport_data` to `london_transport/data`: 3
+- `london_transport_repo` to `london_transport`: 6
+- `Find\(file[.]exists, c\("([^"]+)", "\1"\)\)` to `"\1"`: 2
