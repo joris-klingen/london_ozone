@@ -62,7 +62,6 @@ tex/*.fdb_latexmk
 tex/*.fls
 
 # Original 2020 paper code
-2020_version/
 
 # Claude settings
 .claude/

@@ -83,11 +83,17 @@ Results are written to `output/tables/` and `output/figures/`.
 ## Repository structure
 
 ```
-R/                  Analysis scripts (numbered in execution order)
-data/sample/     Processed data (not tracked, too large)
+data/sample/        Processed data (not tracked, too large)
+notes/              Notes
 output/
   figures/          Figures (PDF + PNG)
   tables/           Regression tables (LaTeX + CSV)
+references/         2020_version/: the code of the published paper (not tracked)
+scripts/
+  data_management/  04 to 06: clean and merge
+  descriptives/     07
+  estimation/       08 to 16: models and figures (numbered in execution order)
+  project_init.R    packages, sourced by every script
 tex/                Paper manuscript and references
 ```
 
