@@ -1,8 +1,8 @@
 # Robustness checks ----
 
-source("R/00_packages.R")
+source("scripts/project_init.R")
 
-proc_dir <- "data/processed"
+proc_dir <- "data/sample"
 fig_dir <- "output/figures"
 tab_dir <- "output/tables"
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)

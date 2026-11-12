@@ -42,15 +42,15 @@ The analysis uses three data sources:
 
 Raw data files are too large for this repository. The journeys, the air quality and the weather are read from the shared London data store (`../london_transport_data`), through the readers in [`../london_transport_repo`](../london_transport_repo) (`R/london_transport.R`; the catalog `london_data_catalog.md` documents every dataset). The store's download scripts retrieve them from the sources above: `scripts/20_download_santander.R` (journeys), `scripts/30_download_laqn.R` (air quality) and `scripts/31_download_openmeteo.R` (weather). The station table that locates the journeys (BikePoint ids of 2026-03 plus the station numbers used from 2022-09, matched by name) is in the store too, `ozone_stations_read()`; the scripts that built it (`R/01*`, which also kept a local copy of every journey file) are in this repository's git history. The project keeps no raw data of its own.
 
-Times: the air quality and weather are in GMT. TfL publishes the journeys' clock times in GMT up to the extract ending 2013-09-13 and in UK local time from 2013-09-14 on; `R/04_clean_cycling.R` converts them to GMT with the store's true times (`CLOCK <- "true"`). The 2026-03 run read every clock time as GMT, which put summer journeys one hour late against the environmental data; `CLOCK <- "published"` reproduces that.
+Times: the air quality and weather are in GMT. TfL publishes the journeys' clock times in GMT up to the extract ending 2013-09-13 and in UK local time from 2013-09-14 on; `scripts/data_management/04_clean_cycling.R` converts them to GMT with the store's true times (`CLOCK <- "true"`). The 2026-03 run read every clock time as GMT, which put summer journeys one hour late against the environmental data; `CLOCK <- "published"` reproduces that.
 
-`output/`, the paper and the results above were rerun from `R/04_clean_cycling.R` on 2026-11-11 with the true clock times and the year-month panel. The within-day estimate no longer rises after 2017 (the earlier runs read every clock time as GMT and gave -0.095 for 2013-2025).
+`output/`, the paper and the results above were rerun from `scripts/data_management/04_clean_cycling.R` on 2026-11-11 with the true clock times and the year-month panel. The within-day estimate no longer rises after 2017 (the earlier runs read every clock time as GMT and gave -0.095 for 2013-2025).
 
 ## Replication
 
 ### Requirements
 
-R 4.3+ with the following packages: `data.table`, `arrow`, `fixest`, `ggplot2`, `lubridate`, `suncalc`, `sf`, `jsonlite`, `curl`, `gridExtra`. These are installed automatically by `R/00_packages.R`.
+R 4.3+ with the following packages: `data.table`, `arrow`, `fixest`, `ggplot2`, `lubridate`, `suncalc`, `sf`, `jsonlite`, `curl`, `gridExtra`. These are installed automatically by `scripts/project_init.R`.
 
 ### Running the analysis
 
@@ -60,22 +60,22 @@ Scripts are numbered in order of execution. From the project root:
 # The journeys, stations, air quality and weather are read from the London store
 
 # Clean and merge (~30 minutes)
-Rscript R/04_clean_cycling.R
-Rscript R/05_clean_environment.R
-Rscript R/06_merge.R
+Rscript scripts/data_management/04_clean_cycling.R
+Rscript scripts/data_management/05_clean_environment.R
+Rscript scripts/data_management/06_merge.R
 
 # Estimation (~20 minutes; panel is slow)
-Rscript R/07_descriptives.R
-Rscript R/08_within_day.R
-Rscript R/09_between_day.R
-Rscript R/10_spatiotemporal.R
-Rscript R/11a_panel_build.R
-Rscript R/11b_panel_estimate.R
-Rscript R/12_robustness.R
-Rscript R/13_comparison_figure.R
-Rscript R/14_nonlinearity_figure.R
-Rscript R/15_yearly_effect.R
-Rscript R/16_panel_figures.R
+Rscript scripts/descriptives/07_descriptives.R
+Rscript scripts/estimation/08_within_day.R
+Rscript scripts/estimation/09_between_day.R
+Rscript scripts/estimation/10_spatiotemporal.R
+Rscript scripts/estimation/11a_panel_build.R
+Rscript scripts/estimation/11b_panel_estimate.R
+Rscript scripts/estimation/12_robustness.R
+Rscript scripts/estimation/13_comparison_figure.R
+Rscript scripts/estimation/14_nonlinearity_figure.R
+Rscript scripts/estimation/15_yearly_effect.R
+Rscript scripts/estimation/16_panel_figures.R
 ```
 
 Results are written to `output/tables/` and `output/figures/`.
@@ -84,7 +84,7 @@ Results are written to `output/tables/` and `output/figures/`.
 
 ```
 R/                  Analysis scripts (numbered in execution order)
-data/processed/     Processed data (not tracked, too large)
+data/sample/     Processed data (not tracked, too large)
 output/
   figures/          Figures (PDF + PNG)
   tables/           Regression tables (LaTeX + CSV)

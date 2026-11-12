@@ -2,7 +2,7 @@
 
 TEST_MODE <- FALSE  # Set TRUE to process only 10 files for debugging
 
-source("R/00_packages.R")
+source("scripts/project_init.R")
 
 # Journeys come from the shared London data store (london_transport_data: one parquet per published
 # TfL file, one schema for all years); see ../london_transport_repo/london_data_catalog.md
@@ -15,7 +15,7 @@ source(Find(file.exists, c("../london_transport_repo/R/london_transport.R", "../
 CLOCK <- "true"
 years_keep <- 2013:2025
 
-out_dir <- "data/processed"
+out_dir <- "data/sample"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 # Helper functions ----

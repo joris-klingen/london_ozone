@@ -1,12 +1,12 @@
 # Non-linearity figure: ozone 5ppb dummies ----
 # Three colored lines: Original (from paper Figure 7), Replication, Extension
 
-source("R/00_packages.R")
+source("scripts/project_init.R")
 
 fig_dir <- "output/figures"
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 
-proc_dir <- "data/processed"
+proc_dir <- "data/sample"
 hourly <- as.data.table(read_parquet(file.path(proc_dir, "analysis_hourly.parquet")))
 
 # Prepare variables (same as 08_within_day.R) ----

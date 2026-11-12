@@ -1,9 +1,9 @@
 # Panel-based figures: ozone dummies and yearly effects ----
 # Uses d>=4km, t>=4 filter for tractable computation
 
-source("R/00_packages.R")
+source("scripts/project_init.R")
 
-proc_dir <- "data/processed"
+proc_dir <- "data/sample"
 fig_dir <- "output/figures"
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 

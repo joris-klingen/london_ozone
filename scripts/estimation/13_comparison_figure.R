@@ -1,6 +1,6 @@
 # Comparison figure: Original vs Replication vs Extension ----
 
-source("R/00_packages.R")
+source("scripts/project_init.R")
 
 fig_dir <- "output/figures"
 tab_dir <- "output/tables"

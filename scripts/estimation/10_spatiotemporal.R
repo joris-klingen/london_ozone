@@ -1,8 +1,8 @@
 # Spatio-temporal estimation (Eq. 3) ----
 
-source("R/00_packages.R")
+source("scripts/project_init.R")
 
-proc_dir <- "data/processed"
+proc_dir <- "data/sample"
 tab_dir <- "output/tables"
 dir.create(tab_dir, recursive = TRUE, showWarnings = FALSE)
 

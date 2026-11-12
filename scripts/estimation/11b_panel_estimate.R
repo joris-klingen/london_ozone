@@ -1,11 +1,11 @@
 # Cyclist panel estimation (Eq. 4) ----
 
-source("R/00_packages.R")
+source("scripts/project_init.R")
 
 TEST_RUN <- as.logical(Sys.getenv("TEST_RUN", "FALSE"))
 if (TEST_RUN) cat("*** TEST RUN MODE ***\n")
 
-proc_dir <- "data/processed"
+proc_dir <- "data/sample"
 tab_dir <- "output/tables"
 dir.create(tab_dir, recursive = TRUE, showWarnings = FALSE)
 

@@ -66,3 +66,5 @@ tex/*.fls
 
 # Claude settings
 .claude/
+Rplots.pdf
+references/2020_version/

@@ -7,12 +7,12 @@
 # 2017-2019, with birth year x gender as a rider label, found year-month sets purer (0.89 vs 0.81 of
 # within-set trip pairs share a label; chance 0.02).
 
-source("R/00_packages.R")
+source("scripts/project_init.R")
 
 TEST_RUN <- as.logical(Sys.getenv("TEST_RUN", "FALSE"))
 if (TEST_RUN) cat("*** TEST RUN MODE: using 2013-2014 only ***\n")
 
-proc_dir <- "data/processed"
+proc_dir <- "data/sample"
 
 trip_files <- sort(list.files(proc_dir, pattern = "^trips_\\d{4}\\.parquet$", full.names = TRUE))
 if (TEST_RUN) {
