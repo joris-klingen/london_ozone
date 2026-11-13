@@ -6,7 +6,7 @@ source("scripts/project_init.R")
 
 # Journeys come from the shared London data store (london_transport/data: one parquet per published
 # TfL file, one schema for all years); see ../london_transport/london_data_catalog.md
-source("../london_transport/R/london_transport.R")
+source(file.path(research_path("london_transport"), "R/london_transport.R"))
 
 # CLOCK = "published" reads every published clock time as GMT, as the 2026-03 run did. TfL publishes
 # GMT up to the extract ending 2013-09-13 and UK local time from 2013-09-14 on, so in summer those
