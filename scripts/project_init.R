@@ -1,5 +1,5 @@
 # Research folder ----
-# research_path("nyc_transport") finds another repo of the research folder: next to this project, or one
+# research_path("nyc_db") finds another repo of the research folder: next to this project, or one
 # folder down from the research root (the folder that holds the file .research_root)
 research_path <- function(name) {
   root <- normalizePath(".", winslash = "/")
