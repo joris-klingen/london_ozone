@@ -3,7 +3,7 @@
 source("scripts/project_init.R")
 
 # Air quality and weather come from the shared London data store (london_transport/data), read with
-# its readers; see ../london_transport/london_data_catalog.md (laqn_hourly, openmeteo_weather)
+# its readers; see ../../data_stores/london_transport/london_data_catalog.md (laqn_hourly, openmeteo_weather)
 source(file.path(research_path("london_transport"), "R/london_transport.R"))
 
 out_dir <- "data/sample"

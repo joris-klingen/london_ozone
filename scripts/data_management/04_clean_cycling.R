@@ -5,7 +5,7 @@ TEST_MODE <- FALSE  # Set TRUE to process only 10 files for debugging
 source("scripts/project_init.R")
 
 # Journeys come from the shared London data store (london_transport/data: one parquet per published
-# TfL file, one schema for all years); see ../london_transport/london_data_catalog.md
+# TfL file, one schema for all years); see ../../data_stores/london_transport/london_data_catalog.md
 source(file.path(research_path("london_transport"), "R/london_transport.R"))
 
 # CLOCK = "published" reads every published clock time as GMT, as the 2026-03 run did. TfL publishes
